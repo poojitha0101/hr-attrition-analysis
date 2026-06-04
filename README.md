@@ -5,10 +5,10 @@ A company is losing employees at a 16.12% attrition rate.
 This project analyzes why employees are leaving and identifies high-risk groups.
 
 ## Tools Used
-- Python (Pandas, Matplotlib, Seaborn)
-- SQL Server (SSMS)
-- Power BI
-- Excel
+--Python (Pandas, Matplotlib, Seaborn)
+--SQL Server (SSMS)
+--Power BI
+--Excel
 
 ## Dataset
 - IBM HR Analytics Dataset

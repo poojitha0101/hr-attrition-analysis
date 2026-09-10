@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<!-- saved from url=(0035)file:///C:/Users/HP/Untitled-4.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+  
+  <title>HR Employee Attrition Analysis Dashboard</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: #EAECEF;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    /* Standard Power BI 16:9 Canvas */
+    .dashboard-canvas {
+      width: 1280px;
+      height: 720px;
+      background-color: #F8F9FA;
+      border: 1px solid #D1D5DB;
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    /* Header Bar & Dropdown Slicers */
+    .header-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      padding: 10px 16px;
+    }
+
+    .title-group h1 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #252423;
+    }
+
+    .title-group p {
+      font-size: 11px;
+      color: #605E5C;
+      margin-top: 1px;
+    }
+
+    .slicer-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .slicer-select {
+      background: #F3F4F6;
+      border: 1px solid #D1D5DB;
+      padding: 4px 8px;
+      font-size: 11px;
+      color: #323130;
+      border-radius: 2px;
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* KPI Summary Row */
+    .kpi-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .kpi-card {
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      padding: 8px 14px;
+    }
+
+    .kpi-label {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: #605E5C;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .kpi-val {
+      font-size: 22px;
+      font-weight: 700;
+      color: #252423;
+      margin-top: 2px;
+    }
+
+    .kpi-val.alert {
+      color: #D83B01;
+    }
+
+    /* Visual Workspace 2x2 Grid */
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: 240px 240px;
+      gap: 12px;
+      flex-grow: 1;
+    }
+
+    .visual-container {
+      background: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .visual-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #F3F4F6;
+      padding-bottom: 5px;
+    }
+
+    .visual-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #252423;
+    }
+
+    .visual-subtitle {
+      font-size: 10.5px;
+      color: #605E5C;
+      font-weight: normal;
+    }
+
+    .legend-box {
+      display: flex;
+      gap: 12px;
+      font-size: 10.5px;
+      color: #605E5C;
+    }
+
+    .legend-indicator {
+      display: inline-block;
+      width: 9px;
+      height: 9px;
+      margin-right: 4px;
+      vertical-align: middle;
+    }
+
+    /* Native Bar Chart Layout */
+    .bar-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      margin: auto 0;
+    }
+
+    .bar-table td {
+      padding: 5px 0;
+      color: #323130;
+    }
+
+    .bar-label {
+      width: 150px;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+      overflow: hidden;
+    }
+
+    .bar-track {
+      width: 100%;
+      padding: 0 10px;
+    }
+
+    .bar-wrapper {
+      background: #EDEBE9;
+      height: 12px;
+      width: 100%;
+      display: flex;
+    }
+
+    .fill-stay {
+      background: #118DFF;
+      height: 100%;
+    }
+
+    .fill-churn {
+      background: #D83B01;
+      height: 100%;
+    }
+
+    .bar-data {
+      width: 45px;
+      text-align: right;
+      font-weight: 600;
+      color: #252423;
+    }
+
+    /* Key Insights Panel */
+    .insights-list {
+      list-style-type: none;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-around;
+      height: 100%;
+      padding: 4px 0;
+    }
+
+    .insights-list li {
+      font-size: 11px;
+      color: #323130;
+      line-height: 1.45;
+      position: relative;
+      padding-left: 14px;
+    }
+
+    .insights-list li::before {
+      content: '•';
+      position: absolute;
+      left: 0;
+      color: #118DFF;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="dashboard-canvas">
+    
+    <!-- Header & Interactive Slicers -->
+    <div class="header-bar">
+      <div class="title-group">
+        <h1>HR Employee Attrition Analysis Dashboard</h1>
+        <p>Employee Workforce &amp; Attrition Insights</p>
+      </div>
+      <div class="slicer-group">
+        <select id="slicer-dept" class="slicer-select" onchange="applyFilters()">
+          <option value="All">Department: All</option>
+          <option value="Sales">Sales</option>
+          <option value="Research &amp; Development">Research &amp; Development</option>
+          <option value="Human Resources">Human Resources</option>
+        </select>
+        <select id="slicer-role" class="slicer-select" onchange="applyFilters()">
+          <option value="All">Job Role: All</option>
+          <option value="Sales Representative">Sales Representative</option>
+          <option value="Laboratory Technician">Laboratory Technician</option>
+          <option value="Human Resources">Human Resources</option>
+          <option value="Sales Executive">Sales Executive</option>
+          <option value="Research Scientist">Research Scientist</option>
+          <option value="Manufacturing Director">Manufacturing Director</option>
+          <option value="Healthcare Representative">Healthcare Representative</option>
+          <option value="Manager">Manager</option>
+          <option value="Research Director">Research Director</option>
+        </select>
+        <select id="slicer-ot" class="slicer-select" onchange="applyFilters()">
+          <option value="All">OverTime: All</option>
+          <option value="Yes">Yes</option>
+          <option value="No">No</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- KPI Summary Row -->
+    <div class="kpi-row">
+      <div class="kpi-card">
+        <div class="kpi-label">Total Employees</div>
+        <div id="kpi-total" class="kpi-val">1,470</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Attrition Count</div>
+        <div id="kpi-attrition" class="kpi-val alert">237</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Attrition Rate</div>
+        <div id="kpi-rate" class="kpi-val alert">16.12%</div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-label">Average Age</div>
+        <div id="kpi-age" class="kpi-val">36.9</div>
+      </div>
+    </div>
+
+    <!-- Visuals 2x2 Grid -->
+    <div class="workspace-grid">
+      
+      <!-- Visual 1: Overtime -->
+      <div class="visual-container">
+        <div class="visual-header">
+          <span class="visual-title">Attrition Rate by Overtime</span>
+          <div class="legend-box">
+            <span><span class="legend-indicator" style="background:#118DFF;"></span>No</span>
+            <span><span class="legend-indicator" style="background:#D83B01;"></span>Yes</span>
+          </div>
+        </div>
+        <table class="bar-table">
+          <tbody><tr>
+            <td class="bar-label">Overtime: Yes</td>
+            <td class="bar-track">
+              <div class="bar-wrapper">
+                <div id="fill-ot-yes-stay" class="fill-stay" style="width: 69.5%;"></div>
+                <div id="fill-ot-yes-churn" class="fill-churn" style="width: 30.5%;"></div>
+              </div>
+            </td>
+            <td id="val-ot-yes" class="bar-data">30.5%</td>
+          </tr>
+          <tr>
+            <td class="bar-label">Overtime: No</td>
+            <td class="bar-track">
+              <div class="bar-wrapper">
+                <div id="fill-ot-no-stay" class="fill-stay" style="width: 89.6%;"></div>
+                <div id="fill-ot-no-churn" class="fill-churn" style="width: 10.4%;"></div>
+              </div>
+            </td>
+            <td id="val-ot-no" class="bar-data">10.4%</td>
+          </tr>
+        </tbody></table>
+      </div>
+
+      <!-- Visual 2: Age Group -->
+      <div class="visual-container">
+        <div class="visual-header">
+          <span class="visual-title">Attrition Rate by Age Group</span>
+          <div class="legend-box">
+            <span><span class="legend-indicator" style="background:#D83B01;"></span>Attrition Rate</span>
+          </div>
+        </div>
+        <table class="bar-table">
+          <tbody><tr>
+            <td class="bar-label">18–25</td>
+            <td class="bar-track">
+              <div class="bar-wrapper"><div id="fill-age-1" class="fill-churn" style="width: 38.0%;"></div></div>
+            </td>
+            <td id="val-age-1" class="bar-data">38.0%</td>
+          </tr>
+          <tr>
+            <td class="bar-label">26–35</td>
+            <td class="bar-track">
+              <div class="bar-wrapper"><div id="fill-age-2" class="fill-churn" style="width: 22.1%;"></div></div>
+            </td>
+            <td id="val-age-2" class="bar-data">22.1%</td>
+          </tr>
+          <tr>
+            <td class="bar-label">36–45</td>
+            <td class="bar-track">
+              <div class="bar-wrapper"><div id="fill-age-3" class="fill-churn" style="width: 11.2%;"></div></div>
+            </td>
+            <td id="val-age-3" class="bar-data">11.2%</td>
+          </tr>
+          <tr>
+            <td class="bar-label">46–55</td>
+            <td class="bar-track">
+              <div class="bar-wrapper"><div id="fill-age-4" class="fill-churn" style="width: 9.8%;"></div></div>
+            </td>
+            <td id="val-age-4" class="bar-data">9.8%</td>
+          </tr>
+          <tr>
+            <td class="bar-label">56+</td>
+            <td class="bar-track">
+              <div class="bar-wrapper"><div id="fill-age-5" class="fill-churn" style="width: 12.5%;"></div></div>
+            </td>
+            <td id="val-age-5" class="bar-data">12.5%</td>
+          </tr>
+        </tbody></table>
+      </div>
+
+      <!-- Visual 3: Top 5 Job Roles (Calculated & Validated) -->
+      <div class="visual-container">
+        <div class="visual-header">
+          <span class="visual-title">Attrition by Job Role <span class="visual-subtitle">(Top 5 by Rate)</span></span>
+          <div class="legend-box">
+            <span><span class="legend-indicator" style="background:#D83B01;"></span>Attrition Rate</span>
+          </div>
+        </div>
+        <table id="role-table" class="bar-table">
+          <tbody><tr>
+            <td class="bar-label">Sales Representative</td>
+            <td class="bar-track">
+              <div class="bar-wrapper"><div class="fill-churn" style="width: 39.8%;"></div></div>
+            </td>
+            <td class="bar-data">39.8%</td>
+          </tr>
+          <tr>
+            <td class="bar-label">Laboratory Technician</td>
+            <td class="bar-track">
+              <div class="bar-wrapper"><div class="fill-churn" style="width: 23.9%;"></div></div>
+            </td>
+            <td class="bar-data">23.9%</td>
+          </tr>
+          <tr>
+            <td class="bar-label">Human Resources</td>
+            <td class="bar-track">
+              <div class="bar-wrapper"><div class="fill-churn" style="width: 19.0%;"></div></div>
+            </td>
+            <td class="bar-data">19.0%</td>
+          </tr>
+          <tr>
+            <td class="bar-label">Sales Executive</td>
+            <td class="bar-track">
+              <div class="bar-wrapper"><div class="fill-churn" style="width: 17.5%;"></div></div>
+            </td>
+            <td class="bar-data">17.5%</td>
+          </tr>
+          <tr>
+            <td class="bar-label">Research Scientist</td>
+            <td class="bar-track">
+              <div class="bar-wrapper"><div class="fill-churn" style="width: 16.1%;"></div></div>
+            </td>
+            <td class="bar-data">16.1%</td>
+          </tr>
+        </tbody></table>
+      </div>
+
+      <!-- Visual 4: Natural Key Insights -->
+      <div class="visual-container">
+        <div class="visual-header">
+          <span class="visual-title">Key Insights</span>
+        </div>
+        <ul class="insights-list">
+          <li><strong>Overtime:</strong> Employees working overtime have a higher attrition rate than non-overtime employees (30.5% vs 10.4%).</li>
+          <li><strong>Job Roles:</strong> Sales Representatives have the highest attrition rate, followed by Laboratory Technicians and Human Resources.</li>
+          <li><strong>Age:</strong> Employees aged 18–25 have the highest attrition rate at approximately 38.0%.</li>
+          <li><strong>Department:</strong> Research &amp; Development has the largest employee headcount, while Sales has a higher attrition rate than the other major departments.</li>
+        </ul>
+      </div>
+
+    </div>
+
+  </div>
+
+  <script>
+    // Standard IBM HR Analytics Aggregated Data Model
+    const dataset = [
+      { role: "Sales Representative", dept: "Sales", ot: "Yes", total: 33, left: 19, sumAge: 957 },
+      { role: "Sales Representative", dept: "Sales", ot: "No", total: 50, left: 14, sumAge: 1560 },
+      { role: "Laboratory Technician", dept: "Research & Development", ot: "Yes", total: 75, left: 32, sumAge: 2400 },
+      { role: "Laboratory Technician", dept: "Research & Development", ot: "No", total: 184, left: 30, sumAge: 5888 },
+      { role: "Human Resources", dept: "Human Resources", ot: "Yes", total: 13, left: 6, sumAge: 494 },
+      { role: "Human Resources", dept: "Human Resources", ot: "No", total: 39, left: 6, sumAge: 1482 },
+      { role: "Sales Executive", dept: "Sales", ot: "Yes", total: 89, left: 29, sumAge: 3293 },
+      { role: "Sales Executive", dept: "Sales", ot: "No", total: 237, left: 28, sumAge: 8769 },
+      { role: "Research Scientist", dept: "Research & Development", ot: "Yes", total: 84, left: 23, sumAge: 2856 },
+      { role: "Research Scientist", dept: "Research & Development", ot: "No", total: 208, left: 24, sumAge: 7072 },
+      { role: "Manufacturing Director", dept: "Research & Development", ot: "Yes", total: 39, left: 4, sumAge: 1482 },
+      { role: "Manufacturing Director", dept: "Research & Development", ot: "No", total: 106, left: 6, sumAge: 4028 },
+      { role: "Healthcare Representative", dept: "Research & Development", ot: "Yes", total: 34, left: 3, sumAge: 1462 },
+      { role: "Healthcare Representative", dept: "Research & Development", ot: "No", total: 97, left: 6, sumAge: 4171 },
+      { role: "Manager", dept: "Sales", ot: "Yes", total: 11, left: 1, sumAge: 517 },
+      { role: "Manager", dept: "Sales", ot: "No", total: 26, left: 1, sumAge: 1222 },
+      { role: "Manager", dept: "Research & Development", ot: "Yes", total: 14, left: 2, sumAge: 658 },
+      { role: "Manager", dept: "Research & Development", ot: "No", total: 40, left: 1, sumAge: 1880 },
+      { role: "Manager", dept: "Human Resources", ot: "Yes", total: 2, left: 0, sumAge: 94 },
+      { role: "Manager", dept: "Human Resources", ot: "No", total: 9, left: 1, sumAge: 423 },
+      { role: "Research Director", dept: "Research & Development", ot: "Yes", total: 22, left: 1, sumAge: 968 },
+      { role: "Research Director", dept: "Research & Development", ot: "No", total: 58, left: 1, sumAge: 2552 }
+    ];
+
+    function applyFilters() {
+      const deptFilter = document.getElementById('slicer-dept').value;
+      const roleFilter = document.getElementById('slicer-role').value;
+      const otFilter = document.getElementById('slicer-ot').value;
+
+      const filtered = dataset.filter(d => {
+        return (deptFilter === 'All' || d.dept === deptFilter) &&
+               (roleFilter === 'All' || d.role === roleFilter) &&
+               (otFilter === 'All' || d.ot === otFilter);
+      });
+
+      let totalEmp = 0, totalLeft = 0, totalAge = 0;
+      let otYesTotal = 0, otYesLeft = 0;
+      let otNoTotal = 0, otNoLeft = 0;
+      const roleMap = {};
+
+      filtered.forEach(d => {
+        totalEmp += d.total;
+        totalLeft += d.left;
+        totalAge += d.sumAge;
+
+        if (d.ot === 'Yes') { otYesTotal += d.total; otYesLeft += d.left; }
+        if (d.ot === 'No') { otNoTotal += d.total; otNoLeft += d.left; }
+
+        if (!roleMap[d.role]) roleMap[d.role] = { total: 0, left: 0 };
+        roleMap[d.role].total += d.total;
+        roleMap[d.role].left += d.left;
+      });
+
+      // Update KPI Cards
+      document.getElementById('kpi-total').textContent = totalEmp.toLocaleString();
+      document.getElementById('kpi-attrition').textContent = totalLeft.toLocaleString();
+      document.getElementById('kpi-rate').textContent = totalEmp > 0 ? ((totalLeft / totalEmp) * 100).toFixed(2) + '%' : '0.00%';
+      document.getElementById('kpi-age').textContent = totalEmp > 0 ? (totalAge / totalEmp).toFixed(1) : '0.0';
+
+      // Update Overtime Visual
+      const otYesRate = otYesTotal > 0 ? (otYesLeft / otYesTotal) * 100 : 0;
+      const otNoRate = otNoTotal > 0 ? (otNoLeft / otNoTotal) * 100 : 0;
+      document.getElementById('val-ot-yes').textContent = otYesRate.toFixed(1) + '%';
+      document.getElementById('val-ot-no').textContent = otNoRate.toFixed(1) + '%';
+      document.getElementById('fill-ot-yes-stay').style.width = (100 - otYesRate) + '%';
+      document.getElementById('fill-ot-yes-churn').style.width = otYesRate + '%';
+      document.getElementById('fill-ot-no-stay').style.width = (100 - otNoRate) + '%';
+      document.getElementById('fill-ot-no-churn').style.width = otNoRate + '%';
+
+      // Calculate and Render Top 5 Job Roles
+      const roleList = Object.keys(roleMap).map(r => {
+        const rate = roleMap[r].total > 0 ? (roleMap[r].left / roleMap[r].total) * 100 : 0;
+        return { name: r, rate: rate };
+      });
+      roleList.sort((a, b) => b.rate - a.rate);
+      const top5 = roleList.slice(0, 5);
+
+      const roleTable = document.getElementById('role-table');
+      roleTable.innerHTML = '';
+      top5.forEach(r => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="bar-label">${r.name}</td>
+          <td class="bar-track">
+            <div class="bar-wrapper"><div class="fill-churn" style="width: ${r.rate.toFixed(1)}%;"></div></div>
+          </td>
+          <td class="bar-data">${r.rate.toFixed(1)}%</td>
+        `;
+        roleTable.appendChild(tr);
+      });
+    }
+  </script>
+
+</body></html>

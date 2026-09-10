@@ -33,4 +33,4 @@ This project analyzes why employees are leaving and identifies high-risk groups.
 ![Department](attrition_by_department.png)
 ![OverTime](attrition_by_overtime.png)
 ![Age Group](attrition_by_agegroup.png)
-![Dashboard](powerbi_dashboard.png)
+![Dashboard](powerbi__dashboard.png)
